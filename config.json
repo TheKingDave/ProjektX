@@ -1,0 +1,66 @@
+{
+  "errorPage": "404",
+  "nav": {
+    "item": "<li><a href='{{url}}' id='nav-{{name}}' class='{{admin}}'>{{name}}</a></li>",
+    "bar": "<nav><div class='nav-wrapper'><a href='/' class='brand-logo logoOwn'>Project X</a><ul id='nav-mobile' class='right hide-on-med-and-down'>{{pages}}</ul></div></nav>",
+    "admin": {
+      "is": ".admin",
+      "not": ".normal"
+    }
+  },
+  "order": [
+    "home", "verleih", "ruekgabe", "kunden", "material", "user"
+  ],
+  "pages": {
+    "#base": {
+      "nav": ["about", "login"],
+      "css": ["materialize.min.css", "icon.css", "style.css"],
+      "js": ["jquery-3.2.1.min.js", "materialize.min.js", "main.js"],
+      "jsLater": [],
+      "html": [],
+      "head": ["head.html"]
+    },
+    "login": {
+      "nav": ["about", "register"],
+      "html": ["login.html"],
+      "name": "Login",
+      "login": true
+    },
+    "_login": {
+      "loginCheck": true,
+      "defaultLoginPage": "/newproject"
+    },
+    "register": {
+      "nav": ["about", "login"],
+      "html": ["register.html"],
+      "js": ["register.js"],
+      "name": "Register",
+      "requiresLogin": false
+    },
+    "logout": {
+      "logoutCheck": true,
+      "logoutPage": "/"
+    },
+    "/": {
+      "html": ["home.html"],
+      "name": "Home",
+      "requiresLogin": false
+    },
+    "404": {
+      "html": ["404.html"],
+      "name": "404",
+      "requiresLogin": false
+    },
+    "newproject": {
+      "nav": false,
+      "html": ["newProject.html"],
+      "name": "New Project",
+      "requiresLogin": false
+    },
+    "about": {
+      "html": ["about.html"],
+      "name": "About",
+      "requiresLogin": false
+    }
+  }
+}
