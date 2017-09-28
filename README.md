@@ -1,3 +1,3 @@
 # ProjektX
 ProjekX Repository
-Project Page: https://projecx.filosofisch.com
+Project Page: https://projectx.filosofisch.com/
