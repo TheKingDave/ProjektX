@@ -1,5 +1,5 @@
 {
-  "errorPage": "404",
+  "errorPage": "/404",
   "nav": {
     "item": "<li><a href='{{url}}' id='nav-{{name}}' class='{{admin}}'>{{name}}</a></li>",
     "bar": "<nav><div class='nav-wrapper'><a href='/' class='brand-logo logoOwn'>Project X</a><ul id='nav-mobile' class='right hide-on-med-and-down'>{{pages}}</ul></div></nav>",
@@ -8,9 +8,6 @@
       "not": ".normal"
     }
   },
-  "order": [
-    "home", "verleih", "ruekgabe", "kunden", "material", "user"
-  ],
   "pages": {
     "#base": {
       "nav": ["about", "login"],
@@ -23,44 +20,73 @@
     "login": {
       "nav": ["about", "register"],
       "html": ["login.html"],
+      "js": ["validate.min.js", "login.js"],
       "name": "Login",
-      "login": true
+      "requiresLogin": false,
+      "savePage": false
     },
     "_login": {
       "loginCheck": true,
-      "defaultLoginPage": "/newproject"
+      "defaultLoginPage": "/newproject",
+      "savePage": false
     },
     "register": {
       "nav": ["about", "login"],
       "html": ["register.html"],
       "js": ["register.js"],
       "name": "Register",
-      "requiresLogin": false
+      "requiresLogin": false,
+      "savePage": false
     },
-    "logout": {
+    "_logout": {
       "logoutCheck": true,
       "logoutPage": "/"
     },
+    "logout": {
+      "includeBase": false,
+      "nav": false,
+      "js": ["jquery-3.2.1.min.js", "logout.js"],
+      "requiresLogin": false,
+      "savePage": false
+    },
     "/": {
+      "nav": ["newproject", "about", "login"],
       "html": ["home.html"],
       "name": "Home",
-      "requiresLogin": false
+      "requiresLogin": false,
+      "savePage": false
+    },
+    "401": {
+      "nav": false,
+      "html": ["errors/401.html"],
+      "name": "401 Unauthorized",
+      "requiresLogin": false,
+      "savePage": false
     },
     "404": {
-      "html": ["404.html"],
-      "name": "404",
-      "requiresLogin": false
+      "nav": false,
+      "html": ["errors/404.html"],
+      "name": "404 Not Found",
+      "requiresLogin": false,
+      "savePage": false
+    },
+    "500": {
+      "nav": false,
+      "html": ["errors/500.html"],
+      "name": "500 Internal server Error",
+      "requiresLogin": false,
+      "savePage": false
     },
     "newproject": {
       "nav": false,
       "html": ["newProject.html"],
-      "name": "New Project",
-      "requiresLogin": false
+      "name": "New Project"
     },
     "about": {
       "html": ["about.html"],
       "name": "About",
-      "requiresLogin": false
+      "requiresLogin": false,
+      "savePage": false
     }
   }
 }

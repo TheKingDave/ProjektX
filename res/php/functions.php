@@ -41,7 +41,7 @@ function getMysqli($exit = false) {
 
 function isAdmin($mysqli, $user) {
     $user = $mysqli->real_escape_string($user);
-    $query = "SELECT * FROM users WHERE uId=$user AND admin=1";
+    $query = "SELECT uId FROM users WHERE uId=$user AND admin=1";
     $res = $mysqli->query($query);
     return $res->num_rows == 1;
 }
@@ -57,15 +57,26 @@ function getPath($mysqli, $user) {
     return $row["path"];
 }
 
-function getUsername($mysqli, $user) {
+function getUserId($mysqli, $user) {
     $user = $mysqli->real_escape_string($user);
-    $query = "SELECT uId, name FROM users WHERE uId=$user";
+    $query = "SELECT uId FROM users WHERE LOWER(userName)=LOWER('$user') OR LOWER(email)=LOWER('$user')";
     $res = $mysqli->query($query);
     if($res->num_rows != 1) {
         return false;
     }
     $res = $res->fetch_assoc();
-    return $res["name"];
+    return $res["uId"];
+}
+
+function getUsername($mysqli, $user) {
+    $user = $mysqli->real_escape_string($user);
+    $query = "SELECT uId, username FROM users WHERE uId=$user";
+    $res = $mysqli->query($query);
+    if($res->num_rows != 1) {
+        return false;
+    }
+    $res = $res->fetch_assoc();
+    return $res["username"];
 }
 
 function setPath($mysqli, $user, $path) {
@@ -95,14 +106,13 @@ function checkPw($mysqli, $user, $pw) {
     return password_verify($pw, $dbPw);
 }
 
-function userList($mysqli) {
-    $ret = [];
-    $query = "SELECT uId,name FROM users";
-    $res = $mysqli->query($query);
-    while($row = $res->fetch_assoc()) {
-        $ret[$row["uId"]] = $row["name"];
-    }
-    return $ret;
+function jsonOk() {
+    echo json_encode(genJsonOk());
+    exit();
+}
+
+function genJsonOk() {
+    return ["ok"=>true, "error"=>false, "error_msg"=>""];
 }
 
 function jsonError($msg="") {

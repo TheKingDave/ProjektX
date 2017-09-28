@@ -21,12 +21,16 @@ $got_page = strtolower($got_page);
 
 if(array_key_exists($got_page, $pages)) {
     $curPage = $pages[$got_page];
+    if(key_exists("redirect", $curPage)) {
+        toPage($curPage["redirect"]);
+    }
     if($curPage["login"] == true and isset($_SESSION["user"])) {
         $path = getPath($mysqli, $_SESSION["user"]);
         toPage($path);
     }
     if($curPage["loginCheck"] === true) {
         loginCheck($mysqli, $curPage["defaultLoginPage"]);
+        exit;
     }
     if($curPage["logoutCheck"] === true) {
         logoutCheck($curPage["logoutPage"]);
@@ -36,8 +40,7 @@ if(array_key_exists($got_page, $pages)) {
     if($curPage["login"] != true && (!($curPage["requiresLogin"] == false) || !isset($curPage["requiresLogin"]))) {
         $userAdmin = isAdmin($mysqli, $_SESSION["user"]);
         if(!isset($_SESSION["user"])) {
-            echo "main_page 01";
-            mainPage();
+            toPage("/401");
         }
         if($curPage["admin"] == true && !$userAdmin) {
             toPage("/home");
@@ -71,35 +74,45 @@ if(array_key_exists($got_page, $pages)) {
     echo "</body></html>";      // Document END
 } else {
     toPage($config["errorPage"]);
-    /*echo "404 Not found<br>";
-    echo $got_page . "<br>";
-    echo json_encode($config, JSON_PRETTY_PRINT); /**/
 }
 
 function loginCheck($mysqli, $defaultPage) {
     $set = allSet($_POST, ["user", "pwd"]);
-    if($set === false) {
-        mainPage();
+    if($set !== true) {
+        jsonError("'user' and 'pwd' must be set");
     }
     $user = $_POST["user"];
-    if(!checkPw($mysqli, $user, $_POST["pwd"])) {
-        mainPage();
+    $pwd = $_POST["pwd"];
+    $user = getUserId($mysqli, $user);
+    if(!$user) {
+        jsonError("Username/Email not found.");
+    }
+    if(!checkPw($mysqli, $user, $pwd)) {
+        jsonError("Incorrect username or password.");
     }
     $name = getUsername($mysqli, $user);
     if($name === false) {
-        mainPage();
+        jsonError("Internal server error. #00001");
     }
-    $_SESSION["name"] = $name;
     $_SESSION["user"] = $user;
+    $_SESSION["name"] = $name;
     $path = getPath($mysqli, $user);
     $path = $path === false ? $defaultPage : $path;
-    toPage($path);
+    $ret = genJsonOk();
+    $ret["redirect"] = $path;
+    $ret["username"] = $user;
+    $ret["name"] = $name;
+    echo json_encode($ret);
+    exit;
 }
 
 function logoutCheck($logoutPage) {
     session_unset();
     session_destroy();
-    toPage($logoutPage);
+    $ret = genJsonOk();
+    $ret["redirect"] = $logoutPage;
+    echo json_encode($ret);
+    exit;
 }
 
 function generateNav($config, $curPage, $isAdmin) {
