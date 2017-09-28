@@ -4,22 +4,26 @@ let form = $('#loginForm');
 let onceTryed = false;
 
 $(document).ready(function () {
-    $("#submit").click(function () {
+    form.submit(function (e) {
+        e.preventDefault();
         validateForm(true);
     });
     $.map(form.serializeArray(), function (n) {
-        form.find("[name='" + n['name'] + "']").keyup(function () {
+        form.find("[name='" + n['name'] + "']").keyup(function (n) {
+            if(n.key === "Enter") {
+                return;
+            }
             if(onceTryed) {
                 validateForm();
             }
         });
     });
-    $("#user_name").val("TheKingDave");
-    $("#password").val("david");
 });
 
 function validateForm(submit) {
-    showError("");
+    if(!submit) {
+        showError("");
+    }
     let formData = getFormData(form);
 
     let constraints = {
@@ -33,7 +37,7 @@ function validateForm(submit) {
 
     let errors = validate(formData, constraints);
     if(showErrosOnForm(form, errors)) {
-        showError("Plese enter all required information.")
+        showError("Plese enter all required information.");
     } else {
         if(submit) {
             submitForm();
@@ -43,7 +47,6 @@ function validateForm(submit) {
 }
 
 function submitForm() {
-    console.log(getFormData(form));
     $.post("_login", getFormData(form))
         .then(function (data) {
             try {
