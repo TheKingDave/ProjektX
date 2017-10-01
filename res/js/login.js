@@ -18,6 +18,9 @@ $(document).ready(function () {
             }
         });
     });
+    // TODO: Remove this debuging stuff
+    //$("#user_name").val("TheKingDave");
+    //$("#password").val("david");
 });
 
 function validateForm(submit) {

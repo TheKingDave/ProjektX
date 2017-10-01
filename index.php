@@ -77,6 +77,9 @@ if(array_key_exists($got_page, $pages)) {
 }
 
 function loginCheck($mysqli, $defaultPage) {
+    if(isset($_SESSION["user"])) {
+        jsonError("User already logged in.");
+    }
     $set = allSet($_POST, ["user", "pwd"]);
     if($set !== true) {
         jsonError("'user' and 'pwd' must be set");
@@ -87,6 +90,16 @@ function loginCheck($mysqli, $defaultPage) {
     if(!$user) {
         jsonError("Username/Email not found.");
     }
+
+    $registerd = sqlQuery($mysqli,
+        "SELECT users.uId, registered FROM 
+              users INNER JOIN register 
+              ON users.uId = register.uId WHERE users.uId = '$user'");
+
+    if(!$registerd || !$registerd[0]["registered"]) {
+        jsonError("Your email has not ben verified yet. Please verify your email address.");
+    }
+
     if(!checkPw($mysqli, $user, $pwd)) {
         jsonError("Incorrect username or password.");
     }

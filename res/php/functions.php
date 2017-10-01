@@ -6,6 +6,16 @@
  * Time: 18:10
  */
 
+function gen_uuid() {
+    return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+        mt_rand( 0, 0xffff ),
+        mt_rand( 0, 0x0fff ) | 0x4000,
+        mt_rand( 0, 0x3fff ) | 0x8000,
+        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+    );
+}
+
 function mainPage() {
     echo "main_page";
     //toPage("/");
@@ -21,7 +31,7 @@ function toPage($page) {
 }
 
 function getMysqli($exit = false) {
-    include "db.php";
+    include "config.php";
     if(!isset($db)) {
         return null;
     }
@@ -39,22 +49,50 @@ function getMysqli($exit = false) {
     return $mysqli;
 }
 
+function sqlQuery($mysqli, $sql) {
+    $res = $mysqli->query($sql);
+    if($res->num_rows == 0) {
+        return false;
+    }
+    $ret = [];
+    while($row = $res->fetch_assoc()) {
+        array_push($ret, $row);
+    }
+    return $ret;
+}
+
+function getOneSql($mysqli, $table, $column, $search, $value) {
+    $search = $mysqli->real_escape_string($search);
+    $value = $mysqli->real_escape_string($value);
+    $search = "$search='$value'";
+
+    $query = "SELECT $column FROM $table WHERE $search;";
+    $res = $mysqli->query($query);
+    if($res->num_rows != 1) {
+        return false;
+    }
+
+    return $res->fetch_assoc()[$column];
+}
+
 function isAdmin($mysqli, $user) {
-    $user = $mysqli->real_escape_string($user);
+    /*$user = $mysqli->real_escape_string($user);
     $query = "SELECT uId FROM users WHERE uId=$user AND admin=1";
     $res = $mysqli->query($query);
-    return $res->num_rows == 1;
+    return $res->num_rows == 1;*/
+    return getOneSql($mysqli, "users", "admin", "uId", $user) == 1;
 }
 
 function getPath($mysqli, $user) {
-    $user = $mysqli->real_escape_string($user);
+    /*$user = $mysqli->real_escape_string($user);
     $query = "SELECT uId,path FROM users WHERE uId=$user";
     $res = $mysqli->query($query);
     if($res->num_rows != 1) {
         return false;
     }
     $row = $res->fetch_assoc();
-    return $row["path"];
+    return $row["path"];*/
+    return getOneSql($mysqli, "users", "path", "uId", $user);
 }
 
 function getUserId($mysqli, $user) {
@@ -69,14 +107,15 @@ function getUserId($mysqli, $user) {
 }
 
 function getUsername($mysqli, $user) {
-    $user = $mysqli->real_escape_string($user);
+    /*$user = $mysqli->real_escape_string($user);
     $query = "SELECT uId, username FROM users WHERE uId=$user";
     $res = $mysqli->query($query);
     if($res->num_rows != 1) {
         return false;
     }
     $res = $res->fetch_assoc();
-    return $res["username"];
+    return $res["username"];*/
+    return getOneSql($mysqli, "users", "username", "uId", $user);
 }
 
 function setPath($mysqli, $user, $path) {
@@ -94,7 +133,7 @@ function setPath($mysqli, $user, $path) {
 }
 
 function checkPw($mysqli, $user, $pw) {
-    $user = $mysqli->real_escape_string($user);
+    /*$user = $mysqli->real_escape_string($user);
     $query = "SELECT uId, pw FROM users WHERE uId=$user";
     $res = $mysqli->query($query);
     if($res->num_rows != 1) {
@@ -102,7 +141,8 @@ function checkPw($mysqli, $user, $pw) {
         return false;
     }
     $row = $res->fetch_assoc();
-    $dbPw = $row["pw"];
+    $dbPw = $row["pw"];*/
+    $dbPw = getOneSql($mysqli, "users", "pw", "uId", $user);
     return password_verify($pw, $dbPw);
 }
 
